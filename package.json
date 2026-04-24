@@ -12,7 +12,7 @@
   "workspaces": ["shared", "server", "extension"],
   "scripts": {
     "build": "npm run build:server && npm run build:extension",
-    "build:server": "npm run compile -w chrome-mcp-server",
+    "build:server": "npm run compile -w mcp-real-chrome",
     "build:extension": "npm run compile -w @chrome-mcp/extension",
     "verify-ws": "node server/scripts/verify-ws.mjs"
   },

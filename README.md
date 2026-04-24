@@ -42,7 +42,7 @@ npm run build
   "mcpServers": {
     "chrome-mcp": {
       "command": "npx",
-      "args": ["-y", "chrome-mcp-server"]
+      "args": ["-y", "mcp-real-chrome"]
     }
   }
 }

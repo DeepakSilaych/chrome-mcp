@@ -1,6 +1,6 @@
 {
-  "name": "chrome-mcp-server",
-  "version": "1.0.0",
+  "name": "mcp-real-chrome",
+  "version": "1.0.2",
   "description": "MCP server that gives AI access to your real Chrome tabs via a bridge extension",
   "type": "module",
   "license": "MIT",
@@ -17,7 +17,7 @@
   "bin": {
     "chrome-mcp": "./dist/index.js"
   },
-  "files": ["dist"],
+  "files": ["dist", "README.md"],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "ws": "^8.18.0",

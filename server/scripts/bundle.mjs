@@ -17,5 +17,6 @@ await esbuild.build({
     "@modelcontextprotocol/sdk",
     "@modelcontextprotocol/sdk/*",
     "zod",
+    "ws",
   ],
 });
