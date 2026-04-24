@@ -1,0 +1,183 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        width: 320px;
+        background: #1a1a2e;
+        color: #e0e0e0;
+        font-size: 13px;
+      }
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 16px 10px;
+        border-bottom: 1px solid #2a2a4a;
+      }
+      .header img { width: 28px; height: 28px; border-radius: 6px; }
+      .header h1 { font-size: 15px; font-weight: 600; color: #fff; }
+      .status-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: #16162b;
+      }
+      .dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .dot.connected { background: #4ade80; box-shadow: 0 0 6px #4ade8088; }
+      .dot.connecting { background: #facc15; box-shadow: 0 0 6px #facc1588; animation: pulse 1.2s infinite; }
+      .dot.idle { background: #6b7280; }
+      @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
+      .status-text { font-size: 12px; color: #a0a0c0; flex: 1; }
+      .config {
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid #2a2a4a;
+      }
+      .config label { font-size: 11px; color: #8888aa; white-space: nowrap; }
+      .config input {
+        width: 72px;
+        padding: 5px 8px;
+        border: 1px solid #3a3a5a;
+        border-radius: 6px;
+        background: #22223a;
+        color: #e0e0e0;
+        font-size: 12px;
+        outline: none;
+      }
+      .config input:focus { border-color: #6366f1; }
+      .actions {
+        display: flex;
+        gap: 8px;
+        flex: 1;
+      }
+      .actions button {
+        flex: 1;
+        padding: 6px 0;
+        border: none;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: opacity .15s;
+      }
+      .actions button:disabled { opacity: .35; cursor: default; }
+      #connect {
+        background: #4f46e5;
+        color: #fff;
+      }
+      #connect:hover:not(:disabled) { background: #6366f1; }
+      #disconnect {
+        background: #2a2a4a;
+        color: #c0c0d0;
+      }
+      #disconnect:hover:not(:disabled) { background: #3a3a5a; }
+      .log-section {
+        border-top: 1px solid #2a2a4a;
+      }
+      .log-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 16px 6px;
+      }
+      .log-header span { font-size: 11px; font-weight: 600; color: #8888aa; text-transform: uppercase; letter-spacing: .5px; }
+      .log-header button {
+        font-size: 11px;
+        background: none;
+        border: none;
+        color: #6366f1;
+        cursor: pointer;
+        padding: 0;
+      }
+      .log-header button:hover { text-decoration: underline; }
+      #log {
+        max-height: 220px;
+        overflow-y: auto;
+        padding: 0 16px 12px;
+      }
+      #log::-webkit-scrollbar { width: 4px; }
+      #log::-webkit-scrollbar-thumb { background: #3a3a5a; border-radius: 2px; }
+      .log-empty {
+        text-align: center;
+        padding: 16px 0;
+        color: #555580;
+        font-size: 12px;
+      }
+      .log-entry {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 6px 0;
+        border-bottom: 1px solid #1f1f36;
+      }
+      .log-entry:last-child { border-bottom: none; }
+      .log-icon {
+        flex-shrink: 0;
+        width: 18px; height: 18px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        margin-top: 1px;
+      }
+      .log-icon.ok { background: #16362e; color: #4ade80; }
+      .log-icon.err { background: #361626; color: #f87171; }
+      .log-body { flex: 1; min-width: 0; }
+      .log-action { font-size: 12px; font-weight: 500; color: #d0d0ea; word-break: break-all; }
+      .log-meta { font-size: 11px; color: #6b6b90; margin-top: 1px; }
+      .log-error { font-size: 11px; color: #f87171; margin-top: 2px; word-break: break-word; }
+      .stat-bar {
+        display: flex;
+        gap: 16px;
+        padding: 8px 16px 10px;
+        border-bottom: 1px solid #2a2a4a;
+      }
+      .stat { text-align: center; }
+      .stat-val { font-size: 16px; font-weight: 700; color: #fff; }
+      .stat-lbl { font-size: 10px; color: #6b6b90; text-transform: uppercase; letter-spacing: .4px; }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <img src="../assets/icon-128.png" alt="" />
+      <h1>Chrome MCP</h1>
+    </div>
+    <div class="status-bar">
+      <div class="dot idle" id="dot"></div>
+      <span class="status-text" id="status">Idle</span>
+    </div>
+    <div class="stat-bar">
+      <div class="stat"><div class="stat-val" id="totalCalls">0</div><div class="stat-lbl">Calls</div></div>
+      <div class="stat"><div class="stat-val" id="okCalls">0</div><div class="stat-lbl">OK</div></div>
+      <div class="stat"><div class="stat-val" id="errCalls">0</div><div class="stat-lbl">Errors</div></div>
+    </div>
+    <div class="config">
+      <label for="port">Port</label>
+      <input id="port" type="number" min="1" max="65535" />
+      <div class="actions">
+        <button type="button" id="connect">Connect</button>
+        <button type="button" id="disconnect">Disconnect</button>
+      </div>
+    </div>
+    <div class="log-section">
+      <div class="log-header">
+        <span>Tool log</span>
+        <button type="button" id="clearLog">Clear</button>
+      </div>
+      <div id="log"><div class="log-empty">No calls yet</div></div>
+    </div>
+    <script type="module" src="../dist/popup.js"></script>
+  </body>
+</html>

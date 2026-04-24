@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "name": "chrome-mcp",
+  "description": "MCP server that exposes your real Chrome tabs via a bridge extension",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "Deepak Silaych",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DeepakSilaych/chrome-mcp"
+  },
+  "workspaces": ["shared", "server", "extension"],
+  "scripts": {
+    "build": "npm run build:server && npm run build:extension",
+    "build:server": "npm run compile -w @chrome-mcp/server",
+    "build:extension": "npm run compile -w @chrome-mcp/extension",
+    "verify-ws": "node server/scripts/verify-ws.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

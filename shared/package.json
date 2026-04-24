@@ -1,0 +1,11 @@
+{
+  "name": "@chrome-mcp/shared",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/protocol.ts",
+      "default": "./src/protocol.ts"
+    }
+  }
+}
