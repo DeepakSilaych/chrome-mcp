@@ -35,7 +35,20 @@ npm run build
 
 ### Add to Cursor
 
-Add to your Cursor MCP config (`~/.cursor/mcp.json` or workspace `.cursor/mcp.json`):
+**Option A — npx (no clone needed)**
+
+```json
+{
+  "mcpServers": {
+    "chrome-mcp": {
+      "command": "npx",
+      "args": ["-y", "chrome-mcp-server"]
+    }
+  }
+}
+```
+
+**Option B — from source**
 
 ```json
 {

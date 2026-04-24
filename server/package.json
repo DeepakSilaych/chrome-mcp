@@ -1,23 +1,33 @@
 {
-  "name": "@chrome-mcp/server",
+  "name": "chrome-mcp-server",
   "version": "1.0.0",
-  "private": true,
+  "description": "MCP server that gives AI access to your real Chrome tabs via a bridge extension",
   "type": "module",
+  "license": "MIT",
+  "author": "Deepak Silaych",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DeepakSilaych/chrome-mcp",
+    "directory": "server"
+  },
+  "keywords": ["mcp", "chrome", "browser", "ai", "model-context-protocol", "cursor"],
   "scripts": {
-    "compile": "tsc -p tsconfig.json"
+    "compile": "node scripts/bundle.mjs"
   },
   "bin": {
     "chrome-mcp": "./dist/index.js"
   },
+  "files": ["dist"],
   "dependencies": {
-    "@chrome-mcp/shared": "*",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "ws": "^8.18.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@chrome-mcp/shared": "*",
     "@types/node": "^22.13.5",
     "@types/ws": "^8.5.14",
+    "esbuild": "^0.25.0",
     "typescript": "^5.7.3"
   }
 }

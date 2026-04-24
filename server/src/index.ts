@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { DEFAULT_WS_PORT } from "@chrome-mcp/shared";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
