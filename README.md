@@ -90,27 +90,6 @@ Cursor/LLM  ←—stdio—→  MCP Server  ←—WebSocket—→  Chrome Extensi
 2. **Chrome extension** (`extension/`) connects to that WebSocket when you click Connect. Incoming requests carry a UUID; the extension runs the matching `chrome.*` handler and replies with the same UUID.
 3. **Shared protocol** (`shared/`) defines action names, request/response types, and guards used by both sides.
 
-## Project Structure
-
-```
-chrome-mcp/
-├── server/              MCP server (Node.js, stdio transport)
-│   └── src/
-│       ├── index.ts     Entry point
-│       ├── bridge.ts    WebSocket server + request correlation
-│       └── tools/       One file per tool category
-├── extension/           Chrome MV3 extension
-│   ├── manifest.json
-│   ├── src/
-│   │   ├── background.ts   Service worker (WS client + router)
-│   │   ├── handlers/       One file per tool category
-│   │   ├── chromeApi.ts    Promisified chrome.* wrappers
-│   │   └── debuggerSession.ts  CDP attach for network/console
-│   └── popup/           Connection UI + tool call log
-├── shared/              Protocol types shared across packages
-├── assets/              Logo and icons
-└── package.json         npm workspaces root
-```
 
 ## Configuration
 
