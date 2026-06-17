@@ -12,12 +12,13 @@
   <a href="#quick-start">Quick Start</a> ·
   <a href="#mcp-tools">Tools</a> ·
   <a href="#how-it-works">How it Works</a> ·
+  <a href="#remote--vm-setup">Remote / VM</a> ·
   <a href="LICENSE">MIT License</a>
 </p>
 
 ---
 
-An [MCP](https://modelcontextprotocol.io) server + Chrome extension that exposes your **existing browser profile** — open tabs, cookies, session state — to any MCP client (Cursor, Claude Desktop, etc.). Compared with tooling that launches a separate Chrome or DevTools session, this stack **reuses whatever is already open** in the browser you use day to day.
+An [MCP](https://modelcontextprotocol.io) server + Chrome extension that exposes your **existing browser profile** — open tabs, cookies, session state — to any MCP client (Claude Code, Cursor, etc.). Multiple Claude sessions share a single browser connection with no port conflicts.
 
 ## Quick Start
 
@@ -28,27 +29,32 @@ npm install
 npm run build
 ```
 
-### Load the extension
+### 1. Load the extension
 
-1. Open `chrome://extensions` → enable **Developer mode**.
-2. **Load unpacked** → select the `extension/` folder.
+**Option A — from release (recommended)**
 
-### Add to Cursor
-
-**Option A — npx (no clone needed)**
-
-```json
-{
-  "mcpServers": {
-    "chrome-mcp": {
-      "command": "npx",
-      "args": ["-y", "mcp-real-chrome"]
-    }
-  }
-}
-```
+1. Download `extension.zip` from the [latest release](https://github.com/DeepakSilaych/chrome-mcp/releases/latest).
+2. Unzip it.
+3. `chrome://extensions` → enable **Developer mode** → **Load unpacked** → select the unzipped folder.
 
 **Option B — from source**
+
+1. `npm run build` (builds extension into `extension/dist/`).
+2. `chrome://extensions` → **Load unpacked** → select the `extension/` folder.
+
+### 2. Start the hub
+
+The hub is a small always-on daemon that holds the WebSocket connection to the extension and multiplexes it across all your Claude sessions.
+
+```bash
+npm run hub
+```
+
+Keep this terminal open. You only ever need one hub per machine.
+
+### 3. Configure your MCP client
+
+**Claude Code / Cursor — from source**
 
 ```json
 {
@@ -61,11 +67,26 @@ npm run build
 }
 ```
 
-### Connect
+**npx (no clone needed)**
 
-1. Enable the MCP server in Cursor (it starts the node process).
-2. Click the extension icon in Chrome → **Connect**.
-3. Ask the LLM to `list_tabs` — you should see your real tabs.
+```json
+{
+  "mcpServers": {
+    "chrome-mcp": {
+      "command": "npx",
+      "args": ["-y", "mcp-real-chrome"]
+    }
+  }
+}
+```
+
+### 4. Connect the extension
+
+Click the extension icon in Chrome → **Connect**. The hub logs `Chrome extension connected`.
+
+Open as many Claude chats as you want — each one gets its own session through the same hub.
+
+---
 
 ## MCP Tools
 
@@ -75,47 +96,98 @@ npm run build
 | **Content** | `get_page_content` `get_selected_text` | Read page text / HTML / selection |
 | **Screenshot** | `take_screenshot` | Capture visible tab as PNG |
 | **Navigate** | `navigate_to` `go_back` `go_forward` `reload_tab` | Browser navigation |
-| **Network** | `start_network_capture` `stop_network_capture` `get_captured_requests` | Record HTTP traffic via debugger |
+| **Network** | `start_network_capture` `stop_network_capture` `get_captured_requests` | Record HTTP traffic |
 | **Console** | `start_console_capture` `stop_console_capture` `get_console_logs` | Capture console output |
 | **Interact** | `click_element` `type_text` `fill_form` `scroll_page` | Drive page elements |
 | **Storage** | `get_cookies` `get_local_storage` | Read cookies and localStorage |
 
+---
+
 ## How it Works
 
 ```
-Cursor/LLM  ←—stdio—→  MCP Server  ←—WebSocket—→  Chrome Extension  ←—chrome.*—→  Browser
+Chrome Extension (browser)
+        │
+        │  WebSocket ws://127.0.0.1:17691
+        │
+┌───────▼──────────────────┐
+│   chrome-mcp-hub         │  ← start once with `npm run hub`
+│   holds extension WS     │
+│   Unix socket IPC        │
+└───┬──────────┬───────────┘
+    │          │  /tmp/chrome-mcp-hub.sock
+    │          │
+  MCP       MCP          ← one per Claude chat, spawned by Claude Code
+session 1  session 2       each registers/unregisters automatically
+(stdio)    (stdio)
 ```
 
-1. **MCP server** (`server/`) runs as a stdio process spawned by the MCP client. It also starts a WebSocket server on `127.0.0.1:17691` (configurable via `CHROME_MCP_PORT`).
-2. **Chrome extension** (`extension/`) connects to that WebSocket when you click Connect. Incoming requests carry a UUID; the extension runs the matching `chrome.*` handler and replies with the same UUID.
-3. **Shared protocol** (`shared/`) defines action names, request/response types, and guards used by both sides.
+**Three layers:**
 
+1. **Chrome Extension** — runs in your browser, controls tabs via `chrome.*` APIs, connects up to the hub via WebSocket.
+2. **Hub** (`chrome-mcp-hub`) — the only process that holds port 17691. Multiplexes the extension connection across all MCP sessions over a Unix socket. Start it once manually.
+3. **MCP Sessions** (`chrome-mcp`) — one per Claude chat. Spawned by Claude Code via stdio, connect to the hub via Unix socket, clean up automatically when the chat ends.
+
+**Why this architecture:**
+- No port conflicts — only the hub ever binds 17691.
+- Sessions are free — you can open 10 Claude chats simultaneously.
+- Port never leaks — sessions exit cleanly via Unix socket, no zombie processes.
+
+---
+
+## Remote / VM Setup
+
+Run Claude Code on a VM but Chrome on your laptop? Use one SSH tunnel:
+
+```bash
+# On your laptop — keep this open
+ssh -L 17691:localhost:17691 your-vm
+```
+
+```bash
+# On the VM — start the hub
+npm run hub
+```
+
+The Chrome extension on your laptop connects through the tunnel to the hub on the VM. All VM Claude sessions share it.
+
+---
 
 ## Configuration
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `CHROME_MCP_PORT` | `17691` | WebSocket port (set on server; match in extension popup) |
+| `CHROME_MCP_PORT` | `17691` | WebSocket port for the hub. If busy, hub auto-increments and tells you the new port. |
+| `CHROME_MCP_HUB_SOCK` | `/tmp/chrome-mcp-hub.sock` | Unix socket path for hub ↔ session IPC. |
 
-## Extension Features
+### Port auto-fallback
 
-- **Manual connect/disconnect** — no background noise when the server is off.
-- **Auto-reconnect** with exponential backoff while connected.
-- **Keepalive** pings every 20s to prevent service worker termination.
-- **Tool call log** in the popup — shows action, duration, success/error for every call.
+If 17691 is taken, the hub tries 17692, 17693... and prints:
 
-## Security
+```
+⚠️  Port 17691 was busy — hub bound to port 17692.
+   Open the extension popup → change port to 17692 → reconnect.
+```
 
-The LLM can read and interact with any tab the extension can access. Avoid using this on profiles with sensitive sessions (banking, health portals, admin panels) unless you understand the risk.
+---
 
 ## Troubleshooting
 
 | Problem | Fix |
 |---------|-----|
-| "Chrome extension not connected to bridge" | Open extension popup → click **Connect**. Verify port matches. |
-| Script injection fails | Some pages (`chrome://`, Web Store) block scripting. Use a normal `https://` tab. |
-| Network/console capture errors | Only one debugger can attach per tab. Close DevTools or stop other captures first. |
-| `EADDRINUSE` on server start | Another process holds the port. Kill it or set a different `CHROME_MCP_PORT`. |
+| `chrome-mcp-hub is not running` | Run `npm run hub` first, then restart Claude. |
+| "Chrome extension not connected to hub" | Click **Connect** in the extension popup. Check the port matches. |
+| Script injection fails | Pages like `chrome://` and the Web Store block scripting. Use a normal `https://` tab. |
+| Network/console capture errors | Only one debugger per tab. Close DevTools or stop other captures first. |
+| Hub port busy on startup | Hub auto-increments — check the printed port and update the extension popup. |
+
+---
+
+## Security
+
+The LLM can read and interact with any tab the extension can access. Avoid using this on profiles with sensitive sessions (banking, admin panels) unless you understand the risk. The hub and sessions only bind to `127.0.0.1` — not exposed to the network unless you explicitly tunnel.
+
+---
 
 ## License
 
