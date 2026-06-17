@@ -1,5 +1,5 @@
 {
-  "name": "@chrome-mcp/extension",
+  "name": "@livemcp/extension",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -7,7 +7,7 @@
     "compile": "node ./scripts/build.mjs"
   },
   "dependencies": {
-    "@chrome-mcp/shared": "*"
+    "@livemcp/shared": "*"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.304",

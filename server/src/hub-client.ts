@@ -1,9 +1,9 @@
 import { createConnection } from "node:net";
 import { randomUUID } from "node:crypto";
-import type { BridgeAction } from "@chrome-mcp/shared";
+import type { BridgeAction } from "@livemcp/shared";
 import type { Bridge } from "./bridge.js";
 
-export const HUB_SOCK = process.env.CHROME_MCP_HUB_SOCK ?? "/tmp/chrome-mcp-hub.sock";
+export const HUB_SOCK = process.env.LIVEMCP_HUB_SOCK ?? "/tmp/livemcp-hub.sock";
 
 type Pending = {
   resolve: (value: unknown) => void;
@@ -67,9 +67,9 @@ export function createHubClient(requestTimeoutMs = 30_000): Bridge {
   });
 
   sock.on("error", (err) => {
-    process.stderr.write(`[chrome-mcp] Hub connection error: ${err.message}\n`);
+    process.stderr.write(`[livemcp] Hub connection error: ${err.message}\n`);
     if ((err as NodeJS.ErrnoException).code === "ENOENT") {
-      process.stderr.write(`[chrome-mcp] Hub not running. Start it with: chrome-mcp-hub\n`);
+      process.stderr.write(`[livemcp] Hub not running. Start it with: livemcp-hub\n`);
     }
   });
 
@@ -77,7 +77,7 @@ export function createHubClient(requestTimeoutMs = 30_000): Bridge {
 
   const request = (action: BridgeAction, params: Record<string, unknown> = {}) => {
     if (!hubConnected) {
-      return Promise.reject(new Error("chrome-mcp-hub is not running. Start it with: chrome-mcp-hub"));
+      return Promise.reject(new Error("livemcp-hub is not running. Start it with: livemcp-hub"));
     }
     if (!extensionConnected) {
       return Promise.reject(new Error("Chrome extension not connected to hub"));

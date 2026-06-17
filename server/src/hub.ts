@@ -2,11 +2,11 @@ import { createServer as createNetServer } from "node:net";
 import { existsSync, unlinkSync } from "node:fs";
 import type { Socket } from "node:net";
 import { WebSocket, WebSocketServer } from "ws";
-import type { BridgeRequest, BridgeResponse } from "@chrome-mcp/shared";
-import { isBridgeResponse, DEFAULT_WS_PORT } from "@chrome-mcp/shared";
+import type { BridgeRequest, BridgeResponse } from "@livemcp/shared";
+import { isBridgeResponse, DEFAULT_WS_PORT } from "@livemcp/shared";
 
-export const HUB_SOCK = process.env.CHROME_MCP_HUB_SOCK ?? "/tmp/chrome-mcp-hub.sock";
-const basePort = Number(process.env.CHROME_MCP_PORT ?? DEFAULT_WS_PORT) || DEFAULT_WS_PORT;
+export const HUB_SOCK = process.env.LIVEMCP_HUB_SOCK ?? "/tmp/livemcp-hub.sock";
+const basePort = Number(process.env.LIVEMCP_PORT ?? DEFAULT_WS_PORT) || DEFAULT_WS_PORT;
 
 // session → hub (Unix socket, newline-delimited JSON)
 type IpcRegister   = { type: "register";   sessionId: string };
@@ -46,11 +46,11 @@ function startWss(port: number): void {
   wss.once("error", (err: NodeJS.ErrnoException) => {
     if (err.code === "EADDRINUSE") {
       wss.close();
-      process.stderr.write(`[chrome-mcp-hub] Port ${port} busy, trying ${port + 1}...\n`);
+      process.stderr.write(`[livemcp-hub] Port ${port} busy, trying ${port + 1}...\n`);
       startWss(port + 1);
       return;
     }
-    process.stderr.write(`[chrome-mcp-hub] WebSocket error: ${err.message}\n`);
+    process.stderr.write(`[livemcp-hub] WebSocket error: ${err.message}\n`);
     process.exit(1);
   });
 
@@ -60,9 +60,9 @@ function startWss(port: number): void {
       process.stderr.write(`\n⚠️  Port ${basePort} was busy — hub bound to port ${port}.\n`);
       process.stderr.write(`   Open the extension popup → change port to ${port} → reconnect.\n\n`);
     }
-    process.stderr.write(`[chrome-mcp-hub] IPC socket : ${HUB_SOCK}\n`);
-    process.stderr.write(`[chrome-mcp-hub] WebSocket  : ws://127.0.0.1:${port}\n`);
-    process.stderr.write("[chrome-mcp-hub] Ready — waiting for extension and sessions\n");
+    process.stderr.write(`[livemcp-hub] IPC socket : ${HUB_SOCK}\n`);
+    process.stderr.write(`[livemcp-hub] WebSocket  : ws://127.0.0.1:${port}\n`);
+    process.stderr.write("[livemcp-hub] Ready — waiting for extension and sessions\n");
   });
 
   wss.on("connection", (ws) => {
@@ -70,7 +70,7 @@ function startWss(port: number): void {
     if (pingTimer) clearInterval(pingTimer);
 
     extensionWs = ws;
-    process.stderr.write("[chrome-mcp-hub] Chrome extension connected\n");
+    process.stderr.write("[livemcp-hub] Chrome extension connected\n");
     broadcastStatus();
 
     pingTimer = setInterval(() => {
@@ -94,7 +94,7 @@ function startWss(port: number): void {
       if (extensionWs !== ws) return;
       extensionWs = null;
       if (pingTimer) { clearInterval(pingTimer); pingTimer = undefined; }
-      process.stderr.write("[chrome-mcp-hub] Chrome extension disconnected\n");
+      process.stderr.write("[livemcp-hub] Chrome extension disconnected\n");
       broadcastStatus();
     };
     ws.on("close", onClose);
@@ -125,11 +125,11 @@ const ipcServer = createNetServer((sock) => {
         sessions.set(msg.sessionId, sock);
         sendToSession(msg.sessionId, { type: "registered", sessionId: msg.sessionId });
         sendToSession(msg.sessionId, { type: "status", connected: extensionWs?.readyState === WebSocket.OPEN });
-        process.stderr.write(`[chrome-mcp-hub] Session registered: ${msg.sessionId} (${sessions.size} active)\n`);
+        process.stderr.write(`[livemcp-hub] Session registered: ${msg.sessionId} (${sessions.size} active)\n`);
 
       } else if (msg.type === "unregister") {
         sessions.delete(msg.sessionId);
-        process.stderr.write(`[chrome-mcp-hub] Session unregistered: ${msg.sessionId} (${sessions.size} active)\n`);
+        process.stderr.write(`[livemcp-hub] Session unregistered: ${msg.sessionId} (${sessions.size} active)\n`);
 
       } else if (msg.type === "request") {
         if (!extensionWs || extensionWs.readyState !== WebSocket.OPEN) {
@@ -147,7 +147,7 @@ const ipcServer = createNetServer((sock) => {
     for (const [sessionId, s] of sessions) {
       if (s === sock) {
         sessions.delete(sessionId);
-        process.stderr.write(`[chrome-mcp-hub] Session disconnected: ${sessionId} (${sessions.size} active)\n`);
+        process.stderr.write(`[livemcp-hub] Session disconnected: ${sessionId} (${sessions.size} active)\n`);
       }
     }
   });

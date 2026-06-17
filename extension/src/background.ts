@@ -1,4 +1,4 @@
-import { BRIDGE_ACTIONS, DEFAULT_WS_PORT, isBridgeRequest, type BridgeAction, type BridgeResponse } from "@chrome-mcp/shared";
+import { BRIDGE_ACTIONS, DEFAULT_WS_PORT, isBridgeRequest, type BridgeAction, type BridgeResponse } from "@livemcp/shared";
 import { dispatch } from "./handlers/index.js";
 
 let socket: WebSocket | null = null;

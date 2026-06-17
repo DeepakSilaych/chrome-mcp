@@ -1,4 +1,4 @@
-import { DEFAULT_WS_PORT } from "@chrome-mcp/shared";
+import { DEFAULT_WS_PORT } from "@livemcp/shared";
 
 const portEl = document.getElementById("port") as HTMLInputElement;
 const statusEl = document.getElementById("status") as HTMLSpanElement;

@@ -1,4 +1,4 @@
-import type { BridgeAction } from "@chrome-mcp/shared";
+import type { BridgeAction } from "@livemcp/shared";
 import * as consoleH from "./console.js";
 import * as content from "./content.js";
 import * as cookies from "./cookies.js";

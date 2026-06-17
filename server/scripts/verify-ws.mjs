@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import WebSocket from "ws";
 
-const port = Number(process.env.CHROME_MCP_PORT ?? 17691) || 17691;
+const port = Number(process.env.LIVEMCP_PORT ?? 17691) || 17691;
 const url = `ws://127.0.0.1:${port}`;
 
 const ws = new WebSocket(url);

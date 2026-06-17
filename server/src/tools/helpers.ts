@@ -1,5 +1,5 @@
 import type { Bridge } from "../bridge.js";
-import type { BridgeAction } from "@chrome-mcp/shared";
+import type { BridgeAction } from "@livemcp/shared";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { errText, okJson } from "../toolResult.js";

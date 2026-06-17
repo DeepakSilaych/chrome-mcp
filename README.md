@@ -1,15 +1,15 @@
 <p align="center">
-  <img src="assets/logo.png" width="180" alt="Chrome MCP logo" />
+  <img src="assets/logo.png" width="180" alt="LiveMCP logo" />
 </p>
 
-<h1 align="center">Chrome MCP</h1>
+<h1 align="center">LiveMCP</h1>
 
 <p align="center">
-  Give AI direct access to your real Chrome browser — open tabs, cookies, session state, and all.
+  Give AI direct access to your real browser — open tabs, cookies, session state, and all.
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/mcp-real-chrome"><img src="https://img.shields.io/npm/v/mcp-real-chrome?label=npm" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/livemcp"><img src="https://img.shields.io/npm/v/livemcp?label=npm" alt="npm version" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license" /></a>
   <a href="https://modelcontextprotocol.io"><img src="https://img.shields.io/badge/MCP-compatible-green" alt="MCP compatible" /></a>
 </p>
@@ -26,9 +26,9 @@
 
 ---
 
-Chrome MCP is an [MCP](https://modelcontextprotocol.io) server + Chrome extension that exposes your **existing browser profile** to any MCP client (Claude Code, Cursor, Zed, etc.).
+LiveMCP is an [MCP](https://modelcontextprotocol.io) server + browser extension that exposes your **existing browser profile** to any MCP client (Claude Code, Cursor, Zed, etc.).
 
-Unlike Playwright-based automation tools, Chrome MCP:
+Unlike Playwright-based automation tools, LiveMCP:
 
 - Works on the browser **you are already using** — your logged-in sessions, cookies, and open tabs are all accessible.
 - Does **not** launch a separate browser process.
@@ -60,13 +60,13 @@ npm install && npm run build
 The hub is a small always-on daemon. It holds the single WebSocket connection to the extension and multiplexes requests across all your AI sessions. Start it once and leave it running.
 
 ```bash
-npx mcp-real-chrome-hub
+npx livemcp-hub
 ```
 
 You should see:
 ```
-Chrome MCP Hub listening on ws://127.0.0.1:17691
-Waiting for Chrome extension to connect…
+[livemcp-hub] WebSocket  : ws://127.0.0.1:17691
+[livemcp-hub] Ready — waiting for extension and sessions
 ```
 
 ### 3. Add to your MCP client
@@ -76,9 +76,9 @@ Waiting for Chrome extension to connect…
 ```json
 {
   "mcpServers": {
-    "chrome-mcp": {
+    "livemcp": {
       "command": "npx",
-      "args": ["-y", "mcp-real-chrome"]
+      "args": ["-y", "livemcp"]
     }
   }
 }
@@ -89,9 +89,9 @@ Waiting for Chrome extension to connect…
 ```json
 {
   "mcpServers": {
-    "chrome-mcp": {
+    "livemcp": {
       "command": "npx",
-      "args": ["-y", "mcp-real-chrome"]
+      "args": ["-y", "livemcp"]
     }
   }
 }
@@ -99,7 +99,7 @@ Waiting for Chrome extension to connect…
 
 ### 4. Connect Chrome
 
-Click the Chrome MCP extension icon → **Connect**. The hub terminal prints `Chrome extension connected`.
+Click the LiveMCP extension icon → **Connect**. The hub terminal prints `Chrome extension connected`.
 
 Open as many AI chats as you want — each gets its own session through the same hub with no port conflicts.
 
@@ -223,7 +223,7 @@ Using `tabUrl` or `tabTitle` means your instructions remain correct even as the 
 ┌─────────────────────────────────────────────────┐
 │  Your Chrome Browser                            │
 │  ┌─────────────────────────────────────────┐   │
-│  │  Chrome MCP Extension (Manifest V3)     │   │
+│  │  LiveMCP Extension (Manifest V3)        │   │
 │  │  • Receives requests from hub           │   │
 │  │  • Executes chrome.* API calls          │   │
 │  │  • Returns results back to hub          │   │
@@ -232,9 +232,9 @@ Using `tabUrl` or `tabTitle` means your instructions remain correct even as the 
                   │ WebSocket ws://127.0.0.1:17691
                   │
 ┌─────────────────▼───────────────────────────────┐
-│  chrome-mcp-hub  (start once, keep running)     │
+│  livemcp-hub  (start once, keep running)        │
 │  • Holds the single WebSocket to the extension  │
-│  • Exposes Unix socket /tmp/chrome-mcp-hub.sock │
+│  • Exposes Unix socket /tmp/livemcp-hub.sock    │
 │  • Routes requests from sessions to extension   │
 │  • Routes responses back by session ID          │
 └──────────┬──────────────────┬───────────────────┘
@@ -249,8 +249,8 @@ Using `tabUrl` or `tabTitle` means your instructions remain correct even as the 
 **Three layers:**
 
 1. **Chrome Extension** — runs inside Chrome, calls `chrome.*` APIs, connected to the hub via WebSocket.
-2. **Hub** (`npx mcp-real-chrome-hub`) — the only process that binds port 17691. Holds the browser connection and fans it out to sessions via a Unix domain socket. Start once per machine.
-3. **MCP Sessions** (`npx mcp-real-chrome`) — one per AI chat. Spawned and killed by the MCP client (Claude Code, Cursor, etc.). Connect to the hub via Unix socket; clean up automatically when the chat ends.
+2. **Hub** (`npx livemcp-hub`) — the only process that binds port 17691. Holds the browser connection and fans it out to sessions via a Unix domain socket. Start once per machine.
+3. **MCP Sessions** (`npx livemcp`) — one per AI chat. Spawned and killed by the MCP client (Claude Code, Cursor, etc.). Connect to the hub via Unix socket; clean up automatically when the chat ends.
 
 **Why this architecture:**
 - No port conflicts — only the hub ever binds 17691.
@@ -271,7 +271,7 @@ ssh -L 17691:localhost:17691 your-vm-hostname
 
 ```bash
 # On the VM — start the hub
-npx mcp-real-chrome-hub
+npx livemcp-hub
 ```
 
 The Chrome extension on your laptop connects through the tunnel to the hub on the VM. All VM Claude sessions share the connection automatically.
@@ -282,8 +282,8 @@ The Chrome extension on your laptop connects through the tunnel to the hub on th
 
 | Environment variable | Default | Description |
 |----------------------|---------|-------------|
-| `CHROME_MCP_PORT` | `17691` | WebSocket port for the hub. |
-| `CHROME_MCP_HUB_SOCK` | `/tmp/chrome-mcp-hub.sock` | Unix socket path for hub ↔ session IPC. |
+| `LIVEMCP_PORT` | `17691` | WebSocket port for the hub. |
+| `LIVEMCP_HUB_SOCK` | `/tmp/livemcp-hub.sock` | Unix socket path for hub ↔ session IPC. |
 
 ### Port auto-fallback
 
@@ -300,7 +300,7 @@ If port 17691 is already in use, the hub automatically tries 17692, 17693, … a
 
 | Symptom | Fix |
 |---------|-----|
-| `chrome-mcp-hub is not running` | Run `npx mcp-real-chrome-hub` first, then restart the MCP client. |
+| `livemcp-hub is not running` | Run `npx livemcp-hub` first, then restart the MCP client. |
 | "Chrome extension not connected" | Click **Connect** in the extension popup. Check that the port matches what the hub printed. |
 | Tool calls hang indefinitely | The hub is running but the extension disconnected. Re-click **Connect** in the popup. |
 | Script injection fails on a tab | Pages like `chrome://`, the Chrome Web Store, and PDF viewer tabs block scripting. Use a normal `https://` page. |
@@ -314,7 +314,7 @@ If port 17691 is already in use, the hub automatically tries 17692, 17693, … a
 
 - The LLM can read and interact with any tab the extension can access. Avoid using this on Chrome profiles with highly sensitive sessions (banking, admin panels) unless you understand and accept the risk.
 - The hub and sessions only bind to `127.0.0.1` — not exposed to the network unless you explicitly tunnel.
-- The Unix socket at `/tmp/chrome-mcp-hub.sock` is accessible to all processes running as your user.
+- The Unix socket at `/tmp/livemcp-hub.sock` is accessible to all processes running as your user.
 
 ---
 

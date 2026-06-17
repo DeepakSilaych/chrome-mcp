@@ -1,7 +1,7 @@
 {
   "private": true,
-  "name": "chrome-mcp",
-  "description": "MCP server that exposes your real Chrome tabs via a bridge extension",
+  "name": "livemcp",
+  "description": "MCP server that gives AI direct access to your real browser tabs",
   "version": "1.0.0",
   "license": "MIT",
   "author": "Deepak Silaych",
@@ -12,8 +12,8 @@
   "workspaces": ["shared", "server", "extension"],
   "scripts": {
     "build": "npm run build:server && npm run build:extension",
-    "build:server": "npm run compile -w mcp-real-chrome",
-    "build:extension": "npm run compile -w @chrome-mcp/extension",
+    "build:server": "npm run compile -w livemcp",
+    "build:extension": "npm run compile -w @livemcp/extension",
     "hub": "node server/dist/hub.js",
     "verify-ws": "node server/scripts/verify-ws.mjs"
   },

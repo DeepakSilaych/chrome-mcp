@@ -1,7 +1,7 @@
 {
-  "name": "mcp-real-chrome",
+  "name": "livemcp",
   "version": "1.2.1",
-  "description": "MCP server that gives AI access to your real Chrome tabs via a bridge extension",
+  "description": "MCP server that gives AI direct access to your real browser — tabs, cookies, session state, and all.",
   "type": "module",
   "license": "MIT",
   "author": "Deepak Silaych",
@@ -22,10 +22,8 @@
     "compile": "node scripts/bundle.mjs"
   },
   "bin": {
-    "chrome-mcp": "dist/index.js",
-    "chrome-mcp-hub": "dist/hub.js",
-    "mcp-real-chrome": "dist/index.js",
-    "mcp-real-chrome-hub": "dist/hub.js"
+    "livemcp": "./dist/index.js",
+    "livemcp-hub": "./dist/hub.js"
   },
   "files": [
     "dist",
@@ -37,7 +35,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@chrome-mcp/shared": "*",
+    "@livemcp/shared": "*",
     "@types/node": "^22.13.5",
     "@types/ws": "^8.5.14",
     "esbuild": "^0.25.0",

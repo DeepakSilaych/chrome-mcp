@@ -1,0 +1,31 @@
+{
+  "name": "livemcp-hub",
+  "version": "1.2.1",
+  "description": "Persistent WebSocket hub daemon for LiveMCP — keeps the browser extension connected across MCP sessions",
+  "type": "module",
+  "license": "MIT",
+  "author": "Deepak Silaych",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DeepakSilaych/chrome-mcp",
+    "directory": "hub"
+  },
+  "keywords": ["mcp", "browser", "ai", "model-context-protocol", "livemcp", "hub"],
+  "scripts": {
+    "compile": "node scripts/bundle.mjs"
+  },
+  "bin": {
+    "livemcp-hub": "./dist/index.js"
+  },
+  "files": ["dist", "README.md"],
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@livemcp/shared": "*",
+    "@types/node": "^22.13.5",
+    "@types/ws": "^8.5.14",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.7.3"
+  }
+}

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Chrome MCP Bridge",
+  "name": "LiveMCP Bridge",
   "version": "1.2.1",
-  "description": "Bridge for chrome-mcp server",
+  "description": "Bridge extension for LiveMCP — gives AI direct access to your real browser",
   "permissions": ["tabs", "activeTab", "scripting", "cookies", "debugger", "storage"],
   "host_permissions": ["<all_urls>"],
   "icons": {
@@ -15,7 +15,7 @@
     "type": "module"
   },
   "action": {
-    "default_title": "Chrome MCP",
+    "default_title": "LiveMCP",
     "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "assets/icon-16.png",

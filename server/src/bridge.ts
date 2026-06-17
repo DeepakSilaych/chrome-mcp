@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { WebSocket, WebSocketServer } from "ws";
-import type { BridgeAction, BridgeRequest, BridgeResponse } from "@chrome-mcp/shared";
-import { isBridgeResponse } from "@chrome-mcp/shared";
+import type { BridgeAction, BridgeRequest, BridgeResponse } from "@livemcp/shared";
+import { isBridgeResponse } from "@livemcp/shared";
 
 type Pending = {
   resolve: (value: unknown) => void;
@@ -25,11 +25,11 @@ export function createBridge(port: number, requestTimeoutMs = 30_000): Bridge {
   wss.on("error", (err: NodeJS.ErrnoException) => {
     if (err.code === "EADDRINUSE") {
       process.stderr.write(
-        `[chrome-mcp] Port ${port} already in use. Kill the other process or set CHROME_MCP_PORT to a different port.\n`,
+        `[livemcp] Port ${port} already in use. Kill the other process or set LIVEMCP_PORT to a different port.\n`,
       );
       process.exit(1);
     }
-    process.stderr.write(`[chrome-mcp] WebSocket server error: ${err.message}\n`);
+    process.stderr.write(`[livemcp] WebSocket server error: ${err.message}\n`);
   });
 
   wss.on("connection", (ws) => {
