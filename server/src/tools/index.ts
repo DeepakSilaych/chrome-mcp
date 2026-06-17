@@ -7,12 +7,14 @@ import { registerInteractTools } from "./interact.js";
 import { registerNavigateTools } from "./navigate.js";
 import { registerNetworkTools } from "./network.js";
 import { registerScreenshotTools } from "./screenshot.js";
+import { registerSnapshotTools } from "./snapshot.js";
 import { registerTabTools } from "./tabs.js";
 
 export function registerAllTools(mcp: McpServer, bridge: Bridge): void {
   registerTabTools(mcp, bridge);
   registerContentTools(mcp, bridge);
   registerScreenshotTools(mcp, bridge);
+  registerSnapshotTools(mcp, bridge);
   registerNavigateTools(mcp, bridge);
   registerNetworkTools(mcp, bridge);
   registerConsoleTools(mcp, bridge);

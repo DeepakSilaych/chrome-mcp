@@ -43,13 +43,42 @@ export function registerInteractTools(mcp: McpServer, bridge: Bridge): void {
   mcp.registerTool(
     "fill_form",
     {
-      description: "Fill multiple inputs by selector",
+      description:
+        "Fill multiple form fields by selector. Supports input, textarea, select (dropdown), checkbox (value=true/false), radio, and contentEditable. Set submit=true to submit the form after filling.",
       inputSchema: {
         fields: z.array(fieldSchema),
+        submit: z.boolean().optional().describe("Submit the form after filling all fields"),
         tabId: z.number().int().positive().optional(),
       },
     },
-    async (args) => bridgeCall(bridge, "interact.fillForm", { fields: args.fields, tabId: args.tabId }),
+    async (args) =>
+      bridgeCall(bridge, "interact.fillForm", {
+        fields: args.fields,
+        submit: args.submit ?? false,
+        tabId: args.tabId,
+      }),
+  );
+  mcp.registerTool(
+    "click_and_wait",
+    {
+      description:
+        "Click an element and wait for a result. Use waitForNavigation=true when the click triggers a page navigation. Use waitFor=selector to wait for a specific element to appear (e.g. a modal or result). Saves an extra round-trip vs click_element + polling.",
+      inputSchema: {
+        selector: z.string(),
+        waitForNavigation: z.boolean().optional().describe("Wait for page navigation to complete"),
+        waitFor: z.string().optional().describe("CSS selector to wait for after clicking"),
+        timeout: z.number().int().positive().optional().describe("Timeout in ms (default 5000)"),
+        tabId: z.number().int().positive().optional(),
+      },
+    },
+    async (args) =>
+      bridgeCall(bridge, "interact.clickAndWait", {
+        selector: args.selector,
+        waitForNavigation: args.waitForNavigation ?? false,
+        waitFor: args.waitFor,
+        timeout: args.timeout,
+        tabId: args.tabId,
+      }),
   );
   mcp.registerTool(
     "scroll_page",

@@ -13,6 +13,7 @@ export const BRIDGE_ACTIONS = [
   "navigate.back",
   "navigate.forward",
   "navigate.reload",
+  "navigate.andWait",
   "network.startCapture",
   "network.stopCapture",
   "network.getCaptured",
@@ -22,9 +23,11 @@ export const BRIDGE_ACTIONS = [
   "interact.click",
   "interact.type",
   "interact.fillForm",
+  "interact.clickAndWait",
   "interact.scroll",
   "cookies.get",
   "cookies.getLocalStorage",
+  "page.snapshot",
 ] as const;
 
 export type BridgeAction = (typeof BRIDGE_ACTIONS)[number];

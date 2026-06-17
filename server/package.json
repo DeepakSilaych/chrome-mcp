@@ -1,6 +1,6 @@
 {
   "name": "mcp-real-chrome",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "MCP server that gives AI access to your real Chrome tabs via a bridge extension",
   "type": "module",
   "license": "MIT",
