@@ -5,7 +5,7 @@
 <h1 align="center">LiveMCP</h1>
 
 <p align="center">
-  Give AI direct access to your real browser — open tabs, cookies, session state, and all.
+  Give AI direct access to your real browser — open tabs, cookies, session state and all.
 </p>
 
 <p align="center">
