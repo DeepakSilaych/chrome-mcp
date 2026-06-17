@@ -1,8 +1,8 @@
-import { executeScript, resolveTabId, tabsGet, tabsUpdate } from "../chromeApi.js";
+import { executeScript, resolveTabSpec, tabsGet, tabsUpdate, type TabSpec } from "../chromeApi.js";
 
 export async function navigateTo(params: Record<string, unknown>): Promise<unknown> {
   const url = params.url as string;
-  const tabId = await resolveTabId(params.tabId as number | undefined);
+  const tabId = await resolveTabSpec(params as TabSpec);
   await tabsUpdate(tabId, { url });
   return { tabId, url };
 }
@@ -11,7 +11,7 @@ export async function navigateAndWait(params: Record<string, unknown>): Promise<
   const url = params.url as string;
   const waitFor = params.waitFor as string | undefined;
   const timeoutMs = (params.timeout as number | undefined) ?? 10_000;
-  const tabId = await resolveTabId(params.tabId as number | undefined);
+  const tabId = await resolveTabSpec(params as TabSpec);
 
   await tabsUpdate(tabId, { url });
 
@@ -52,7 +52,7 @@ export async function navigateAndWait(params: Record<string, unknown>): Promise<
 }
 
 export async function goBack(params: Record<string, unknown>): Promise<unknown> {
-  const tabId = await resolveTabId(params.tabId as number | undefined);
+  const tabId = await resolveTabSpec(params as TabSpec);
   await new Promise<void>((resolve, reject) => {
     chrome.tabs.goBack(tabId, () => {
       if (chrome.runtime.lastError) {
@@ -66,7 +66,7 @@ export async function goBack(params: Record<string, unknown>): Promise<unknown> 
 }
 
 export async function goForward(params: Record<string, unknown>): Promise<unknown> {
-  const tabId = await resolveTabId(params.tabId as number | undefined);
+  const tabId = await resolveTabSpec(params as TabSpec);
   await new Promise<void>((resolve, reject) => {
     chrome.tabs.goForward(tabId, () => {
       if (chrome.runtime.lastError) {
@@ -80,7 +80,7 @@ export async function goForward(params: Record<string, unknown>): Promise<unknow
 }
 
 export async function reload(params: Record<string, unknown>): Promise<unknown> {
-  const tabId = await resolveTabId(params.tabId as number | undefined);
+  const tabId = await resolveTabSpec(params as TabSpec);
   await new Promise<void>((resolve, reject) => {
     chrome.tabs.reload(tabId, {}, () => {
       if (chrome.runtime.lastError) {

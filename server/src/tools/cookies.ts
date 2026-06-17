@@ -1,7 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { Bridge } from "../bridge.js";
-import { bridgeCall } from "./helpers.js";
+import { bridgeCall, tabSpecSchema } from "./helpers.js";
 
 export function registerCookieTools(mcp: McpServer, bridge: Bridge): void {
   mcp.registerTool(
@@ -16,8 +16,8 @@ export function registerCookieTools(mcp: McpServer, bridge: Bridge): void {
     "get_local_storage",
     {
       description: "Read localStorage for a tab origin",
-      inputSchema: { tabId: z.number().int().positive().optional() },
+      inputSchema: { ...tabSpecSchema },
     },
-    async (args) => bridgeCall(bridge, "cookies.getLocalStorage", { tabId: args.tabId }),
+    async (args) => bridgeCall(bridge, "cookies.getLocalStorage", { tabId: args.tabId, tabUrl: args.tabUrl, tabTitle: args.tabTitle }),
   );
 }

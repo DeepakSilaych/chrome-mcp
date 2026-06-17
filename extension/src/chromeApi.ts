@@ -90,6 +90,27 @@ export async function resolveTabId(tabId?: number): Promise<number> {
   return id;
 }
 
+export type TabSpec = { tabId?: number; tabUrl?: string; tabTitle?: string };
+
+export async function resolveTabSpec(spec: TabSpec): Promise<number> {
+  if (spec.tabId != null) return spec.tabId;
+  if (spec.tabUrl || spec.tabTitle) {
+    const all = await tabsQuery({});
+    const needle_url = spec.tabUrl?.toLowerCase();
+    const needle_title = spec.tabTitle?.toLowerCase();
+    const tab = all.find((t) => {
+      if (needle_url && t.url?.toLowerCase().includes(needle_url)) return true;
+      if (needle_title && t.title?.toLowerCase().includes(needle_title)) return true;
+      return false;
+    });
+    if (!tab?.id) {
+      throw new Error(`No tab found matching ${spec.tabUrl ? `url="${spec.tabUrl}"` : `title="${spec.tabTitle}"`}`);
+    }
+    return tab.id;
+  }
+  return resolveTabId();
+}
+
 export function tabSummary(t: chrome.tabs.Tab) {
   return {
     id: t.id,

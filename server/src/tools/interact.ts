@@ -1,7 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { Bridge } from "../bridge.js";
-import { bridgeCall } from "./helpers.js";
+import { bridgeCall, tabSpecSchema } from "./helpers.js";
 
 const fieldSchema = z.object({
   selector: z.string(),
@@ -15,11 +15,11 @@ export function registerInteractTools(mcp: McpServer, bridge: Bridge): void {
       description: "Click the first element matching a CSS selector",
       inputSchema: {
         selector: z.string(),
-        tabId: z.number().int().positive().optional(),
+        ...tabSpecSchema,
       },
     },
     async (args) =>
-      bridgeCall(bridge, "interact.click", { selector: args.selector, tabId: args.tabId }),
+      bridgeCall(bridge, "interact.click", { selector: args.selector, tabId: args.tabId, tabUrl: args.tabUrl, tabTitle: args.tabTitle }),
   );
   mcp.registerTool(
     "type_text",
@@ -29,7 +29,7 @@ export function registerInteractTools(mcp: McpServer, bridge: Bridge): void {
         selector: z.string(),
         text: z.string(),
         clear: z.boolean().optional(),
-        tabId: z.number().int().positive().optional(),
+        ...tabSpecSchema,
       },
     },
     async (args) =>
@@ -38,6 +38,8 @@ export function registerInteractTools(mcp: McpServer, bridge: Bridge): void {
         text: args.text,
         clear: args.clear ?? false,
         tabId: args.tabId,
+        tabUrl: args.tabUrl,
+        tabTitle: args.tabTitle,
       }),
   );
   mcp.registerTool(
@@ -48,7 +50,7 @@ export function registerInteractTools(mcp: McpServer, bridge: Bridge): void {
       inputSchema: {
         fields: z.array(fieldSchema),
         submit: z.boolean().optional().describe("Submit the form after filling all fields"),
-        tabId: z.number().int().positive().optional(),
+        ...tabSpecSchema,
       },
     },
     async (args) =>
@@ -56,6 +58,8 @@ export function registerInteractTools(mcp: McpServer, bridge: Bridge): void {
         fields: args.fields,
         submit: args.submit ?? false,
         tabId: args.tabId,
+        tabUrl: args.tabUrl,
+        tabTitle: args.tabTitle,
       }),
   );
   mcp.registerTool(
@@ -68,7 +72,7 @@ export function registerInteractTools(mcp: McpServer, bridge: Bridge): void {
         waitForNavigation: z.boolean().optional().describe("Wait for page navigation to complete"),
         waitFor: z.string().optional().describe("CSS selector to wait for after clicking"),
         timeout: z.number().int().positive().optional().describe("Timeout in ms (default 5000)"),
-        tabId: z.number().int().positive().optional(),
+        ...tabSpecSchema,
       },
     },
     async (args) =>
@@ -78,6 +82,8 @@ export function registerInteractTools(mcp: McpServer, bridge: Bridge): void {
         waitFor: args.waitFor,
         timeout: args.timeout,
         tabId: args.tabId,
+        tabUrl: args.tabUrl,
+        tabTitle: args.tabTitle,
       }),
   );
   mcp.registerTool(
@@ -87,7 +93,7 @@ export function registerInteractTools(mcp: McpServer, bridge: Bridge): void {
       inputSchema: {
         direction: z.enum(["up", "down", "left", "right"]),
         amount: z.number().int().positive().optional(),
-        tabId: z.number().int().positive().optional(),
+        ...tabSpecSchema,
       },
     },
     async (args) =>
@@ -95,6 +101,8 @@ export function registerInteractTools(mcp: McpServer, bridge: Bridge): void {
         direction: args.direction,
         amount: args.amount ?? 400,
         tabId: args.tabId,
+        tabUrl: args.tabUrl,
+        tabTitle: args.tabTitle,
       }),
   );
 }

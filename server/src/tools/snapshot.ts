@@ -1,6 +1,6 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z } from "zod";
 import type { Bridge } from "../bridge.js";
+import { tabSpecSchema } from "./helpers.js";
 import { errText } from "../toolResult.js";
 
 type SnapshotResult = {
@@ -17,13 +17,11 @@ export function registerSnapshotTools(mcp: McpServer, bridge: Bridge): void {
     {
       description:
         "Get a full page snapshot in one call: visual screenshot + interactive elements (inputs, buttons, links with selectors) + headings + URL. Use this instead of separate screenshot + get_page_content calls to save round-trips.",
-      inputSchema: {
-        tabId: z.number().int().positive().optional(),
-      },
+      inputSchema: { ...tabSpecSchema },
     },
     async (args) => {
       try {
-        const result = (await bridge.request("page.snapshot", { tabId: args.tabId })) as SnapshotResult;
+        const result = (await bridge.request("page.snapshot", { tabId: args.tabId, tabUrl: args.tabUrl, tabTitle: args.tabTitle })) as SnapshotResult;
         const base64 = result.screenshot.replace(/^data:image\/[^;]+;base64,/, "");
         return {
           content: [

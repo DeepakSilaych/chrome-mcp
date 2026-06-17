@@ -1,7 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { Bridge } from "../bridge.js";
-import { bridgeCall } from "./helpers.js";
+import { bridgeCall, tabSpecSchema } from "./helpers.js";
 
 const formatSchema = z.enum(["text", "html", "markdown"]);
 
@@ -11,13 +11,13 @@ export function registerContentTools(mcp: McpServer, bridge: Bridge): void {
     {
       description: "Read page content from a tab as text, html, or markdown-oriented plain text",
       inputSchema: {
-        tabId: z.number().int().positive().optional(),
+        ...tabSpecSchema,
         format: formatSchema.optional(),
       },
     },
     async (args) =>
       bridgeCall(bridge, "content.getPage", {
-        tabId: args.tabId,
+        tabId: args.tabId, tabUrl: args.tabUrl, tabTitle: args.tabTitle,
         format: args.format ?? "text",
       }),
   );
@@ -25,8 +25,8 @@ export function registerContentTools(mcp: McpServer, bridge: Bridge): void {
     "get_selected_text",
     {
       description: "Get the current text selection in a tab",
-      inputSchema: { tabId: z.number().int().positive().optional() },
+      inputSchema: { ...tabSpecSchema },
     },
-    async (args) => bridgeCall(bridge, "content.getSelection", { tabId: args.tabId }),
+    async (args) => bridgeCall(bridge, "content.getSelection", { tabId: args.tabId, tabUrl: args.tabUrl, tabTitle: args.tabTitle }),
   );
 }

@@ -1,7 +1,7 @@
-import { resolveTabId, tabsGet } from "../chromeApi.js";
+import { resolveTabSpec, tabsGet, type TabSpec } from "../chromeApi.js";
 
 export async function capture(params: Record<string, unknown>): Promise<unknown> {
-  const tab = await tabsGet(await resolveTabId());
+  const tab = await tabsGet(await resolveTabSpec(params as TabSpec));
   const windowId = (params.windowId as number | undefined) ?? tab.windowId;
   if (windowId == null) throw new Error("No window");
   return new Promise<string>((resolve, reject) => {

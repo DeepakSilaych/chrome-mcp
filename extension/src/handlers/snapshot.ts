@@ -1,7 +1,7 @@
-import { executeScript, resolveTabId, tabsGet } from "../chromeApi.js";
+import { executeScript, resolveTabSpec, tabsGet, type TabSpec } from "../chromeApi.js";
 
 export async function getPageSnapshot(params: Record<string, unknown>): Promise<unknown> {
-  const tabId = await resolveTabId(params.tabId as number | undefined);
+  const tabId = await resolveTabSpec(params as TabSpec);
   const tab = await tabsGet(tabId);
 
   const [pageInfo, screenshot] = await Promise.all([

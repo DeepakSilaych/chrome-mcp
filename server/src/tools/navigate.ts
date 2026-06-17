@@ -1,7 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { Bridge } from "../bridge.js";
-import { bridgeCall } from "./helpers.js";
+import { bridgeCall, tabSpecSchema } from "./helpers.js";
 
 export function registerNavigateTools(mcp: McpServer, bridge: Bridge): void {
   mcp.registerTool(
@@ -10,34 +10,34 @@ export function registerNavigateTools(mcp: McpServer, bridge: Bridge): void {
       description: "Navigate a tab to a URL",
       inputSchema: {
         url: z.string(),
-        tabId: z.number().int().positive().optional(),
+        ...tabSpecSchema,
       },
     },
-    async (args) => bridgeCall(bridge, "navigate.to", { url: args.url, tabId: args.tabId }),
+    async (args) => bridgeCall(bridge, "navigate.to", { url: args.url, tabId: args.tabId, tabUrl: args.tabUrl, tabTitle: args.tabTitle }),
   );
   mcp.registerTool(
     "go_back",
     {
       description: "History back for a tab",
-      inputSchema: { tabId: z.number().int().positive().optional() },
+      inputSchema: { ...tabSpecSchema },
     },
-    async (args) => bridgeCall(bridge, "navigate.back", { tabId: args.tabId }),
+    async (args) => bridgeCall(bridge, "navigate.back", { tabId: args.tabId, tabUrl: args.tabUrl, tabTitle: args.tabTitle }),
   );
   mcp.registerTool(
     "go_forward",
     {
       description: "History forward for a tab",
-      inputSchema: { tabId: z.number().int().positive().optional() },
+      inputSchema: { ...tabSpecSchema },
     },
-    async (args) => bridgeCall(bridge, "navigate.forward", { tabId: args.tabId }),
+    async (args) => bridgeCall(bridge, "navigate.forward", { tabId: args.tabId, tabUrl: args.tabUrl, tabTitle: args.tabTitle }),
   );
   mcp.registerTool(
     "reload_tab",
     {
       description: "Reload a tab",
-      inputSchema: { tabId: z.number().int().positive().optional() },
+      inputSchema: { ...tabSpecSchema },
     },
-    async (args) => bridgeCall(bridge, "navigate.reload", { tabId: args.tabId }),
+    async (args) => bridgeCall(bridge, "navigate.reload", { tabId: args.tabId, tabUrl: args.tabUrl, tabTitle: args.tabTitle }),
   );
   mcp.registerTool(
     "navigate_and_wait",
@@ -48,7 +48,7 @@ export function registerNavigateTools(mcp: McpServer, bridge: Bridge): void {
         url: z.string(),
         waitFor: z.string().optional().describe("CSS selector to wait for after page load"),
         timeout: z.number().int().positive().optional().describe("Timeout in ms (default 10000)"),
-        tabId: z.number().int().positive().optional(),
+        ...tabSpecSchema,
       },
     },
     async (args) =>
@@ -57,6 +57,8 @@ export function registerNavigateTools(mcp: McpServer, bridge: Bridge): void {
         waitFor: args.waitFor,
         timeout: args.timeout,
         tabId: args.tabId,
+        tabUrl: args.tabUrl,
+        tabTitle: args.tabTitle,
       }),
   );
 }

@@ -1,4 +1,4 @@
-import { executeScript, resolveTabId } from "../chromeApi.js";
+import { executeScript, resolveTabSpec, type TabSpec } from "../chromeApi.js";
 
 export async function getCookies(params: Record<string, unknown>): Promise<unknown> {
   const url = params.url as string;
@@ -14,7 +14,7 @@ export async function getCookies(params: Record<string, unknown>): Promise<unkno
 }
 
 export async function getLocalStorage(params: Record<string, unknown>): Promise<unknown> {
-  const tabId = await resolveTabId(params.tabId as number | undefined);
+  const tabId = await resolveTabSpec(params as TabSpec);
   return executeScript(
     tabId,
     () => {

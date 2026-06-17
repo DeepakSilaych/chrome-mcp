@@ -1,7 +1,7 @@
-import { executeScript, resolveTabId, tabsGet } from "../chromeApi.js";
+import { executeScript, resolveTabSpec, tabsGet, type TabSpec } from "../chromeApi.js";
 
 export async function click(params: Record<string, unknown>): Promise<unknown> {
-  const tabId = await resolveTabId(params.tabId as number | undefined);
+  const tabId = await resolveTabSpec(params as TabSpec);
   const selector = params.selector as string;
   return executeScript(
     tabId,
@@ -16,7 +16,7 @@ export async function click(params: Record<string, unknown>): Promise<unknown> {
 }
 
 export async function typeText(params: Record<string, unknown>): Promise<unknown> {
-  const tabId = await resolveTabId(params.tabId as number | undefined);
+  const tabId = await resolveTabSpec(params as TabSpec);
   const selector = params.selector as string;
   const text = params.text as string;
   const clear = Boolean(params.clear);
@@ -44,7 +44,7 @@ export async function typeText(params: Record<string, unknown>): Promise<unknown
 type Field = { selector: string; value: string };
 
 export async function fillForm(params: Record<string, unknown>): Promise<unknown> {
-  const tabId = await resolveTabId(params.tabId as number | undefined);
+  const tabId = await resolveTabSpec(params as TabSpec);
   const fields = params.fields as Field[];
   const submit = Boolean(params.submit);
   return executeScript(
@@ -85,7 +85,7 @@ export async function fillForm(params: Record<string, unknown>): Promise<unknown
 }
 
 export async function clickAndWait(params: Record<string, unknown>): Promise<unknown> {
-  const tabId = await resolveTabId(params.tabId as number | undefined);
+  const tabId = await resolveTabSpec(params as TabSpec);
   const selector = params.selector as string;
   const waitFor = params.waitFor as string | undefined;
   const waitForNavigation = Boolean(params.waitForNavigation);
@@ -139,7 +139,7 @@ export async function clickAndWait(params: Record<string, unknown>): Promise<unk
 }
 
 export async function scroll(params: Record<string, unknown>): Promise<unknown> {
-  const tabId = await resolveTabId(params.tabId as number | undefined);
+  const tabId = await resolveTabSpec(params as TabSpec);
   const direction = params.direction as string;
   const amount = (params.amount as number) ?? 400;
   return executeScript(

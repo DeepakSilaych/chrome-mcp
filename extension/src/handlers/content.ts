@@ -1,7 +1,7 @@
-import { executeScript, resolveTabId } from "../chromeApi.js";
+import { executeScript, resolveTabSpec, type TabSpec } from "../chromeApi.js";
 
 export async function getPage(params: Record<string, unknown>): Promise<unknown> {
-  const tabId = await resolveTabId(params.tabId as number | undefined);
+  const tabId = await resolveTabSpec(params as TabSpec);
   const format = (params.format as string) ?? "text";
   return executeScript(
     tabId,
@@ -15,6 +15,6 @@ export async function getPage(params: Record<string, unknown>): Promise<unknown>
 }
 
 export async function getSelection(params: Record<string, unknown>): Promise<unknown> {
-  const tabId = await resolveTabId(params.tabId as number | undefined);
+  const tabId = await resolveTabSpec(params as TabSpec);
   return executeScript(tabId, () => window.getSelection()?.toString() ?? "", []);
 }
