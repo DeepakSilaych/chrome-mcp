@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Chrome MCP Bridge",
-  "version": "1.1.0",
+  "version": "1.2.1",
   "description": "Bridge for chrome-mcp server",
   "permissions": ["tabs", "activeTab", "scripting", "cookies", "debugger", "storage"],
   "host_permissions": ["<all_urls>"],
