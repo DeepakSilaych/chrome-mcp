@@ -47,27 +47,12 @@ npm run build
 The hub is a small always-on daemon that holds the WebSocket connection to the extension and multiplexes it across all your Claude sessions.
 
 ```bash
-npm run hub
+npx mcp-real-chrome-hub
 ```
 
 Keep this terminal open. You only ever need one hub per machine.
 
 ### 3. Configure your MCP client
-
-**Claude Code / Cursor — from source**
-
-```json
-{
-  "mcpServers": {
-    "chrome-mcp": {
-      "command": "node",
-      "args": ["/absolute/path/to/chrome-mcp/server/dist/index.js"]
-    }
-  }
-}
-```
-
-**npx (no clone needed)**
 
 ```json
 {
@@ -146,7 +131,7 @@ ssh -L 17691:localhost:17691 your-vm
 
 ```bash
 # On the VM — start the hub
-npm run hub
+npx mcp-real-chrome-hub
 ```
 
 The Chrome extension on your laptop connects through the tunnel to the hub on the VM. All VM Claude sessions share it.
