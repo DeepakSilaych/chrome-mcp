@@ -15,7 +15,8 @@
     "compile": "node scripts/bundle.mjs"
   },
   "bin": {
-    "chrome-mcp": "./dist/index.js"
+    "chrome-mcp": "./dist/index.js",
+    "chrome-mcp-hub": "./dist/hub.js"
   },
   "files": ["dist", "README.md"],
   "dependencies": {

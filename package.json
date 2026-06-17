@@ -14,6 +14,7 @@
     "build": "npm run build:server && npm run build:extension",
     "build:server": "npm run compile -w mcp-real-chrome",
     "build:extension": "npm run compile -w @chrome-mcp/extension",
+    "hub": "node server/dist/hub.js",
     "verify-ws": "node server/scripts/verify-ws.mjs"
   },
   "engines": {

@@ -1,11 +1,9 @@
-import { DEFAULT_WS_PORT } from "@chrome-mcp/shared";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { createBridge } from "./bridge.js";
+import { createHubClient } from "./hub-client.js";
 import { registerAllTools } from "./tools/index.js";
 
-const port = Number(process.env.CHROME_MCP_PORT ?? DEFAULT_WS_PORT) || DEFAULT_WS_PORT;
-const bridge = createBridge(port);
+const bridge = createHubClient();
 
 const mcp = new McpServer(
   { name: "chrome-mcp", version: "1.0.0" },

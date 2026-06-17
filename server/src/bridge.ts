@@ -10,7 +10,6 @@ type Pending = {
 };
 
 export type Bridge = {
-  readonly port: number;
   isConnected: () => boolean;
   request: (action: BridgeAction, params: Record<string, unknown>) => Promise<unknown>;
   close: () => Promise<void>;
@@ -105,5 +104,5 @@ export function createBridge(port: number, requestTimeoutMs = 30_000): Bridge {
     });
   };
 
-  return { port, isConnected, request, close };
+  return { isConnected, request, close };
 }

@@ -4,19 +4,32 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-await esbuild.build({
-  entryPoints: [join(root, "src/index.ts")],
+const shared = {
   bundle: true,
-  outfile: join(root, "dist/index.js"),
   format: "esm",
   platform: "node",
   target: "node18",
   sourcemap: true,
-  banner: { js: "#!/usr/bin/env node" },
   external: [
     "@modelcontextprotocol/sdk",
     "@modelcontextprotocol/sdk/*",
     "zod",
     "ws",
   ],
+};
+
+// MCP session process (one per Claude chat)
+await esbuild.build({
+  ...shared,
+  entryPoints: [join(root, "src/index.ts")],
+  outfile: join(root, "dist/index.js"),
+  banner: { js: "#!/usr/bin/env node" },
+});
+
+// Hub daemon (one per machine, always-on)
+await esbuild.build({
+  ...shared,
+  entryPoints: [join(root, "src/hub.ts")],
+  outfile: join(root, "dist/hub.js"),
+  banner: { js: "#!/usr/bin/env node" },
 });
