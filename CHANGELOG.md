@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.3.0] – 2026-06-19
+
+### Added
+- **`format: "aria"` for `get_page_content`** — returns a compact accessibility tree (roles, names, CSS selectors) instead of raw HTML. 10–20× smaller than HTML, structured exactly how LLMs think. Now the default format.
+  ```
+  - heading "Sign in" [level=1]
+  - textbox "Email" [type=email, ref=#email]
+  - textbox "Password" [type=password, ref=#password]
+  - button "Sign in" [ref=button[type=submit]]
+  - link "Forgot password?" [href=/reset, ref=a.forgot]
+  ```
+- **`selector` param on `get_page_content`** — scope extraction to any CSS subtree instead of the whole page. E.g. `selector=".search-results"`, `selector="#main"`, `selector="table"`. Works with all formats including `"aria"`.
+- **Expanded system prompt / agent instructions** — detailed guidance baked into the MCP server on tool sequencing, tab targeting, format selection, and error recovery. Reduces wrong tool calls without needing per-session prompting.
+
+### Changed
+- `get_page_content` default format changed from `"text"` to `"aria"`.
+
+---
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
